@@ -1,81 +1,51 @@
 import json
-from random import randint
+from random import choice
 
 
-def word() -> str:
-    # Вытаскиваем словарь из файла
-    with open('sort_words.json', 'r') as reed_file:
-        data = json.load(reed_file)
-        reed_file.close
+def get_word() -> str:
 
-    # Получаем 'рандомное' слово
-    all_num = len(data)
-    random_num = randint(1, all_num)
-    random_word = data[str(random_num)]
+    with open('words.txt', 'r', encoding='UTF-8') as all_words:
 
-    return random_word
+        words = all_words.read()
+        words_list = words.split('\n')
+        random_word = choice(words_list)
+
+        return random_word
 
 
-def question(word_: str, w: dict) -> None:
-    # Фиксируем начальные значения
-    len_6 = '______'
-    len_8 = '________'
-    count = 0
+def question(line: str, random_word: str, gallows: dict, count: int) -> None:
+    print(gallows[count], '\n')
 
-    # Выводим начальную модельку виселицы
-    print(w[count], '\n')
+    print(line)
 
-    # Основная логика игры для слов из 6 символов
+    while True:
+        letter = input('Введите букву:')
 
-    if len(word_) == 6:
-        print(len_6)
-
-        while True:
-            x = input('Введите букву:')
-
-            if x not in word_:
-                count += 1
-                print(w[count])
-                print(len_6)
-            else:
-                z = [i for i in range(len(word_)) if word_[i] == x]
-                for i in z:
-                    len_6 = len_6[:i] + x + len_6[i+1:]
-                print(w[count])
-                print(len_6)
-            if '_' not in len_6 or count == 6:
-                print('\nИгра окончена')
-                break
-
-    # Основная логика игры для слов из 8 символов
-    else:
-        print(len_8)
-        while True:
-            x = input('Введите букву:')
-
-            if x not in word_:
-                count += 1
-                print(w[count])
-                print(len_8)
-
-            else:
-                z = [i for i in range(len(word_)) if word_[i] == x]
-                for i in z:
-                    len_8 = len_8[:i] + x + len_8[i+1:]
-                print(w[count])
-                print(len_8)
-            if '_' not in len_8 or count == 8:
-                print('\nИгра окончена')
-                break
+        if letter not in random_word:
+            count += 1
+            print(gallows[count])
+            print(line)
+        else:
+            z = [i for i in range(len(random_word))
+                 if random_word[i] == letter]
+            for i in z:
+                line = line[:i] + letter + line[i+1:]
+            print(gallows[count])
+            print(line)
+        if count == len(random_word) and '_' in line:
+            print(
+                f'''Повезет в следующий раз, \nправильное слово \'{random_word}\'''')
+            break
 
 
 def main() -> None:
+
     print(
         '''Добро пожаловать в угадайку,
 количество букв в слове равно
 количеству символов '_'. ''')
 
-    w = {
+    gallows = {
         0: '''
 |-----|
 |
@@ -148,8 +118,10 @@ def main() -> None:
 '''
     }
 
-    word_ = word()
-    question(word_, w)
+    random_word = get_word()
+    line = '_' * len(random_word)
+
+    question(line, random_word, gallows, count=0)
 
 
 if __name__ == '__main__':
